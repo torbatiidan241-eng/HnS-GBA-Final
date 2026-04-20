@@ -26,16 +26,20 @@ jobs:
 
       - name: Build ROM
         run: |
-          # 1. Install the fixer tool
+          # 1. Clean up and install tools
           apt-get update && apt-get install -y dos2unix
+          make clean
           
-          # 2. Fix EVERY file in the project automatically
-          find . -type f -print0 | xargs -0 dos2unix
+          # 2. Force convert EVERY file to the right format
+          find . -type f -exec dos2unix {} +
           
-          # 3. Create the dummy folders/files just in case
+          # 3. Handle the 'unused' folder ghost
           mkdir -p graphics/battle_anims/unused
           touch graphics/battle_anims/unused/unknown.pal
           touch graphics/battle_anims/unused/unknown.gbapal
+          
+          # 4. The actual build - ignoring minor warnings
+          make -j$(nproc) WERROR=0
           
           # 4. Run the build
           make -j$(nproc) WERROR=0
