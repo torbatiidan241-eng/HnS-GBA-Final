@@ -26,10 +26,18 @@ jobs:
 
       - name: Build ROM
         run: |
+          # 1. Install the fixer tool
+          apt-get update && apt-get install -y dos2unix
+          
+          # 2. Fix EVERY file in the project automatically
+          find . -type f -print0 | xargs -0 dos2unix
+          
+          # 3. Create the dummy folders/files just in case
           mkdir -p graphics/battle_anims/unused
           touch graphics/battle_anims/unused/unknown.pal
           touch graphics/battle_anims/unused/unknown.gbapal
-          touch graphics/battle_anims/unused/water_gfx.4bpp
+          
+          # 4. Run the build
           make -j$(nproc) WERROR=0
       - name: Upload
         uses: actions/upload-artifact@v4
