@@ -26,22 +26,22 @@ jobs:
 
       - name: Build ROM
         run: |
-          # 1. Clean up and install tools
+          # 1. Get the fix tool
           apt-get update && apt-get install -y dos2unix
-          make clean
           
-          # 2. Force convert EVERY file to the right format
-          find . -type f -exec dos2unix {} +
+          # 2. Delete ALL previous palette builds so they start fresh
+          find . -name "*.gbapal" -delete
           
-          # 3. Handle the 'unused' folder ghost
+          # 3. Force convert every source file to Unix format
+          find . -type f -name "*" -print0 | xargs -0 dos2unix
+          
+          # 4. Create the dummy folder for the Makefile
           mkdir -p graphics/battle_anims/unused
           touch graphics/battle_anims/unused/unknown.pal
           touch graphics/battle_anims/unused/unknown.gbapal
           
-          # 4. The actual build - ignoring minor warnings
-          make -j$(nproc) WERROR=0
-          
-          # 4. Run the build
+          # 5. Build - this will take longer but it will be CLEAN
+          make clean
           make -j$(nproc) WERROR=0
       - name: Upload
         uses: actions/upload-artifact@v4
