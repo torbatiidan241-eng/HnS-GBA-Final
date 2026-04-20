@@ -1,6 +1,8 @@
 name: HnS Build
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
   build:
@@ -17,20 +19,18 @@ jobs:
           git clone --depth=1 https://github.com/pret/agbcc
           cd agbcc && ./build.sh && ./install.sh ../ && cd ..
 
-      - name: Prepare Build
+      - name: Fix Line Endings
         run: |
-          # Creates a blank file so the Makefile doesn't complain about a missing rom
-          touch baserom.gba
-          # Build the tools first
-          make -C tools -j$(nproc)
-          
+          apt-get install -y dos2unix
+          find . -type f -name "*" -print0 | xargs -0 dos2unix
+
       - name: Build ROM
         run: |
-          # This runs the actual compiler
-          make -j$(nproc)
-          
+          make clean
+          make -j$(nproc) WERROR=0
+
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: Pokemon-HnS-ROM
+          name: HnS-ROM
           path: "*.gba"
