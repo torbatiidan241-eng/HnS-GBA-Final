@@ -24,10 +24,12 @@ jobs:
           apt-get install -y dos2unix
           find . -type f -name "*" -print0 | xargs -0 dos2unix
 
-      - - name: Build ROM
+      - name: Build ROM
         run: |
+          mkdir -p graphics/battle_anims/unused
           touch graphics/battle_anims/unused/unknown.pal
           touch graphics/battle_anims/unused/unknown.gbapal
+          touch graphics/battle_anims/unused/water_gfx.4bpp
           make -j$(nproc) WERROR=0
       - name: Upload
         uses: actions/upload-artifact@v4
